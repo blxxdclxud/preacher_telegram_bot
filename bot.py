@@ -13,7 +13,7 @@ from json import load
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 
 # read local variables from config file
-with open("config.json", 'rt') as file:
+with open(ROOT_PATH + "config.json", 'rt') as file:
     _config = load(file)
 
 TOKEN = _config["token"]
@@ -69,7 +69,7 @@ async def greeting(message: types.Message):
 
 @dp.message_handler(commands=["change_mailing_status"])
 @dp.callback_query_handler(lambda x: x.data == "mailing")
-async def change_mailing_status_from_button(query_or_message: types.CallbackQuery | types.Message):
+async def change_mailing_status_from_button(query_or_message):
     """
     This function changes user's mailing status after /change_mailing_status command or after pressing inline button
     :param query_or_message: message if user typed the command; query if he pressed the button

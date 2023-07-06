@@ -3,5 +3,5 @@ aiogram==2.25.1
 beautifulsoup4==4.12.2
 requests==2.27.1
 Pillow==10.0.0
-APScheduler==3.6.3
+APScheduler==3.10.1
 aiohttp==3.8.1

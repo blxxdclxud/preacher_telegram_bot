@@ -2,7 +2,6 @@ from bs4 import BeautifulSoup
 from requests import get
 from PIL import Image, ImageDraw, ImageFont
 import aiohttp
-import asyncio
 
 from CONSTANTS import ROOT_PATH
 
@@ -27,7 +26,7 @@ def source_text_pattern(_text: str) -> str:
     return _text
 
 
-def get_dua_or_hadith_text(_url: str, _type="") -> tuple | str:
+def get_dua_or_hadith_text(_url: str, _type="") -> tuple:
     """
     This function gets and handles dua, ayah or hadith text from given url.
     :param _url: URL of page in `umma.ru` site with current dua, ayah or hadith
@@ -61,15 +60,20 @@ def get_dua_or_hadith_text(_url: str, _type="") -> tuple | str:
     elif _type == "ayah":
         # the main text of ayah. all paragraphs except the last one (because it is just link to 'Dzen')
         body_text = ' '.join([el.text for el in soup.select('article p')])
+        if not body_text:
+            body_text = soup.select('article div')[0].text
 
         # cut off part of the text after "Св. Коран...)." words
         body_text = body_text[: body_text.find(
-            ").",
+            ")",
             body_text.find("Св. Коран, ") + 11
         ) + 2]
 
         # surah and ayah number in Quran (ex.: 3:7). it is between "Св. Коран," and ")." words
-        ayah_pointer = body_text[body_text.find("Св. Коран, ") + 11: -2]
+        ayah_pointer = body_text[body_text.find("Св. Коран, ") + 11: body_text.find(
+            ")",
+            body_text.find("Св. Коран, ") + 11
+        )]
 
         # it is possible that there is few ayahs, not only one. so we get all ayahs numbers separated with `, `
         surah_num = ayah_pointer.split(":")[0]
@@ -117,7 +121,10 @@ def get_ayah_arabic_translate(pointer: str) -> str:
 
     soup = BeautifulSoup(response.text, 'html.parser')
 
-    surah_text = soup.find("span", class_="original-text original-text-rtl").text
+    try:
+        surah_text = soup.find("span", class_="original-text original-text-rtl").text
+    except AttributeError:
+        return ''
     return surah_text
 
 
@@ -216,6 +223,14 @@ def set_ayah_pointer_in_img(pointer: str) -> None:
             align="center",
             anchor='mm'
         )
+        draw_text.text(
+            (110, 98),
+            "..",
+            fill=('#020a00'),
+            font=font,
+            align="center",
+            anchor='mm'
+        )
         im.save(ROOT_PATH + "img/ayah_day.png")
 
 
@@ -242,10 +257,14 @@ async def get_all_duas_links() -> set:
     return dua
 
 
-# tp = "dua"
+
+# url = get_link_of_ayah_or_hadith_of_the_day(_type="ayah")
+# print(url)
+# tp = "ayah"
 # print(prettify_text(
 #     get_dua_or_hadith_text(
-#         "https://umma.ru/molitva-dua-pokayaniya/",
+#         url,
 #         _type=tp
 #     ),
 #     _type=tp))
+# set_ayah_pointer_in_img("14:42")
