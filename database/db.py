@@ -14,17 +14,17 @@ def get_all_users(mailing=False):
 
 
 def add_new_user(user_id):
-    cursor.execute(f"INSERT INTO users(user_id) VALUES({user_id})")
+    cursor.execute("INSERT INTO users(user_id) VALUES(?)", (user_id,))
     connection.commit()
 
 
 def get_mailing_status_of_user(user_id):
-    result = cursor.execute(f"SELECT mailing FROM users WHERE user_id = {user_id}").fetchone()
+    result = cursor.execute("SELECT mailing FROM users WHERE user_id = ?", (user_id,)).fetchone()
     return result[0]
 
 
 def change_mailing_status_of_user(user_id):
-    cursor.execute(f"UPDATE users SET mailing = NOT mailing WHERE user_id = {user_id}")
+    cursor.execute("UPDATE users SET mailing = NOT mailing WHERE user_id = ?", (user_id,))
     connection.commit()
 
 
@@ -36,4 +36,3 @@ def add_to_posted_duas(link):
 def get_posted_duas():
     result = cursor.execute("SELECT link FROM posted_duas").fetchall()
     return set(i[0] for i in result)
-

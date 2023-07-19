@@ -66,13 +66,13 @@ def get_dua_or_hadith_text(_url: str, _type="") -> tuple:
         # cut off part of the text after "Св. Коран...)." words
         body_text = body_text[: body_text.find(
             ")",
-            body_text.find("Св. Коран, ") + 11
+            body_text.find("Св. Коран,") + 11
         ) + 2]
 
         # surah and ayah number in Quran (ex.: 3:7). it is between "Св. Коран," and ")." words
-        ayah_pointer = body_text[body_text.find("Св. Коран, ") + 11: body_text.find(
+        ayah_pointer = body_text[body_text.find("Св. Коран,") + 11: body_text.find(
             ")",
-            body_text.find("Св. Коран, ") + 11
+            body_text.find("Св. Коран,") + 11
         )]
 
         # it is possible that there is few ayahs, not only one. so we get all ayahs numbers separated with `, `
@@ -88,6 +88,8 @@ def get_dua_or_hadith_text(_url: str, _type="") -> tuple:
 
         body_text = ayah_arabic + '\n' + body_text
 
+        # print(ayah_pointer)
+        # print(body_text)
         return ayah_pointer, body_text
 
     else:

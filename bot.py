@@ -53,7 +53,8 @@ async def greeting(message: types.Message):
     else:
         btn_mailing = btn_sub_mailing
 
-    greeting_kb = InlineKeyboardMarkup().add(btn_admin, btn_mailing)
+    greeting_kb = InlineKeyboardMarkup().row(btn_admin)
+    greeting_kb.row(btn_mailing)
 
     await bot.send_message(user_id,
                            f"""Ас-саляму алейкум (اَلسَّلَامُ عَلَيْكُمُ), {user_name}
@@ -65,6 +66,10 @@ async def greeting(message: types.Message):
 
 С помощью этого бота вы сможете получать ежедневную рассылку с хадисами и дуа""",
                            reply_markup=greeting_kb)
+    await bot.send_message(user_id,
+                           f"""Если у вас есть интересные материалы для постов, которые могут быть полезны другим, можете отправить их нам.
+
+Для этого нажмите кнопку в меню "связь с администратором".""")
 
 
 @dp.message_handler(commands=["change_mailing_status"])
@@ -91,7 +96,8 @@ async def change_mailing_status_from_button(query_or_message):
     if type(query_or_message) == types.CallbackQuery:
         await bot.answer_callback_query(query_or_message.id)
 
-        greeting_kb = InlineKeyboardMarkup().add(btn_admin, btn_mailing)
+        greeting_kb = InlineKeyboardMarkup().row(btn_admin)
+        greeting_kb.row(btn_mailing)
 
         # edit greeting message where user clicked subscribe/unsubscribe button (rather change button's text)
         await bot.edit_message_text(
@@ -102,6 +108,14 @@ async def change_mailing_status_from_button(query_or_message):
         )
     await bot.send_message(user_id,
                            message_text)
+
+
+@dp.message_handler(commands=["contact_admin"])
+async def contact_admin(message: types.Message):
+    user_id = message.from_user.id
+
+    await bot.send_message(user_id,
+                           "https://t.me/feedbackbott")
 
 
 async def start_mailing(text='', img=None, data_from_admin=None):
@@ -142,7 +156,7 @@ async def start_mailing(text='', img=None, data_from_admin=None):
                                        parse_mode='Markdown')
 
 
-@dp.message_handler(lambda x: x.from_user.id == ADMIN_ID and
+@dp.message_handler(lambda x: x.from_user.id in ADMIN_ID and
                               not any(i in x.text for i in ('start', 'change_mailing_status')),
                     content_types=['photo', 'text', 'video', 'document', 'sticker', 'voice'])
 async def send_post_from_admin(message: types.Message):
@@ -152,7 +166,7 @@ async def send_post_from_admin(message: types.Message):
     :param message:
     :return:
     """
-    await start_mailing(data_from_admin=[ADMIN_ID,
+    await start_mailing(data_from_admin=[message.from_user.id,
                                          message.message_id])
 
 
